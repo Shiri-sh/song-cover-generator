@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'server/uploads/');
+    cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
     const name = Date.now() + '-' + file.originalname;
@@ -39,6 +39,7 @@ router.get('/analyze/:filename', analyzeAudio);
 router.post('/generate-cover', generateCover);
 
 app.listen(PORT, () => {
+  console.log("PORT ENV", process.env.PORT);
   console.log(`Server is running on port ${PORT}`);
 });
 

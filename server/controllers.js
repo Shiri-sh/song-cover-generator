@@ -54,20 +54,10 @@ const analyzeAudio = async (req, res) => {
     model: "gemini-2.5-flash",
     contents: contents,
   });
-  // const myfile = await ai.files.upload({
-  //   file: filePath,
-  //   config: { mimeType: "audio/mp3" },
-  // });
-  // console.log('file uploaded to GenAI:', myfile);
-  // const response = await ai.models.generateContent({
-  //   model: "gemini-2.5-flash",
-  //   contents: createUserContent([
-  //     createPartFromUri(myfile.uri, myfile.mimeType),
-  //        ]),prompt
-  // });
   console.log('Analysis response:', response.text);
-  res.json({ analysis: response.text });
-}
+  res.json({ analysis: response.text[0] });
+};
+
 const generateCover = async (req, res) => {
   // Generate a cover for the audio file
   const { analysis } = req.body;
@@ -88,5 +78,5 @@ const generateCover = async (req, res) => {
   }
    
   res.send('Cover generated successfully.');
-}
+};
 export { uploadAudio ,analyzeAudio ,generateCover };
