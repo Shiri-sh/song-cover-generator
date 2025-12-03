@@ -46,3 +46,15 @@ width: 100%;
 margin-top: 10px;
 border-radius: 10px;
 }
+.image-container {
+    display: inline-block;
+    margin: 10px;
+    text-align: center;
+}
+
+.generated-image {
+    width: 250px;
+    height: auto;
+    display: block;
+    margin-bottom: 5px;
+}

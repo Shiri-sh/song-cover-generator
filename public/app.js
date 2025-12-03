@@ -34,7 +34,7 @@ submitButton.addEventListener("click", async () => {
 
     const coverRes = await fetch("/api/generate-cover", {
         method: "POST",
-        body: JSON.stringify({ analysis: dataAnalysis }),
+        body: JSON.stringify({ prompt: dataAnalysis }),
         headers: {
             "Content-Type": "application/json",
         },
@@ -42,11 +42,27 @@ submitButton.addEventListener("click", async () => {
     const dataCover = await coverRes.json();
 
     if (dataCover.images?.length) {
-        dataCover.images.forEach((url) => {
+        dataCover.images.forEach((url, index) => {
+            const container = document.createElement("div");
+            container.className = "image-container";
+
             const img = document.createElement("img");
             img.src = url;
             img.className = "generated-image";
-            imagesOutput.appendChild(img);
+            img.alt = `Generated Image ${index + 1}`;
+
+            const downloadButton = document.createElement("button");
+            downloadButton.innerText = "Download";
+            downloadButton.addEventListener("click", () => {
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `image_${index + 1}.png`;
+                a.click();
+            });
+
+            container.appendChild(img);
+            container.appendChild(downloadButton);
+            imagesOutput.appendChild(container);
         });
     }
 });
