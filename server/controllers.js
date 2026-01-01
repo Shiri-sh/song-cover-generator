@@ -1,9 +1,11 @@
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 import {
-  GoogleGenAI, createUserContent,
-  createPartFromUri,
+  GoogleGenAI
 } from '@google/genai';
+
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
 import * as fs from "node:fs";
 import path from 'path';
 import dotenv from 'dotenv';
@@ -30,13 +32,11 @@ const uploadAudio = async (req, res) => {
 };
 
 const analyzeAudio = async (req, res) => {
-
-  // Analyze the audio file
+  console.log("API KEY:", process.env.GENAI_API_KEY);
   try {
-    console.log('APIKEY:', process.env.GENAI_API_KEY);
     const { filename } = req.params;
-    console.log('Analyzing file:', filename);
     const filePath = path.join(__dirname, `/uploads/${filename}`);
+
     if (!fs.existsSync(filePath)) {
       console.log('File does not exist:', filePath);
     }
@@ -62,55 +62,72 @@ const analyzeAudio = async (req, res) => {
       model: "gemini-2.5-flash",
       contents: contents,
     });
+
     console.log('Analysis response:', response.text);
-    res.json({ analysis: response.text[0] });
+    res.json({ analysis: response.text });
   } catch (err) {
-    console.log('Error during analysis:', err);
+    console.log('Error during analysis:', err.message);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-
 const generateCover = async (req, res) => {
-  // Generate a cover for the audio file
-  try {
-    const { prompt } = req.body;
-    if (!prompt) {
+  const genAI = new GoogleGenerativeAI(process.env.GENAI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+  const { prompt } = req.body;
+  if (!prompt) {
       return res.status(400).json({ error: "Prompt is required" });
-    }
-
-    const images = [];
-
-    for (let i = 0; i < 3; i++) {
-      const response = await axios.post(
-        "https://router.huggingface.co/api/models/stabilityai/stable-diffusion-xl-base-1.0",
-        {
-          inputs: prompt  // כאן המידע מהשרת
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.HF_TOKEN}`,
-            "Content-Type": "application/json"
-          },
-          responseType: "json" // או arraybuffer אם אתה רוצה תמונה ישירות
-        }
-      );
-
-      const fileName = `img_${Date.now()}_${i}.png`;
-      const filePath = path.join("public", "generated", fileName);
-
-      fs.writeFileSync(filePath, response.data);
-
-      images.push({
-        url: `/generated/${fileName}`
-      });
-    }
-
-    res.json({ success: true, images });
-  } catch (err) {
-    console.log(err);
   }
+   const result = await model.generateContent(prompt);
+   const response =  result.response;
+   const aiImagePrompt= response.text().trim();
+  
+  const generatedImageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(aiImagePrompt)}?nologo=true&private=true&enhance=true`;
 
-  res.send('Cover generated successfully.');
-};
+  console.log("Generated Image URL:", generatedImageUrl);
+  res.json({ success: true, images: [generatedImageUrl] });
+}
+// const generateCover = async (req, res) => {
+//   // Generate a cover for the audio file
+//   try {
+//     const { prompt } = req.body;
+//     if (!prompt) {
+//       return res.status(400).json({ error: "Prompt is required" });
+//     }
+
+//     const images = [];
+
+//     for (let i = 0; i < 3; i++) {
+//       const response = await axios.post(
+//         "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0",
+//         {
+//           inputs: prompt  
+//         },
+//         {
+//           headers: {
+//             Authorization: `Bearer ${process.env.HF_TOKEN}`,
+//             "Content-Type": "application/json"
+//           },
+//           responseType: "json" 
+//         }
+//       );
+
+//       const fileName = `img_${Date.now()}_${i}.png`;
+//       const filePath = path.join("public", "generated", fileName);
+
+//       fs.writeFileSync(filePath, response.data);
+
+//       images.push({
+//         url: `/generated/${fileName}`
+//       });
+//     }
+
+//     res.json({ success: true, images });
+//   } catch (err) {
+//     console.log(err);
+//   }
+
+//   res.send('Cover generated successfully.');
+// };
 
 export { uploadAudio, analyzeAudio, generateCover };

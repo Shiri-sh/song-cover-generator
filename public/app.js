@@ -4,6 +4,12 @@ const analysisOutput = document.getElementById("analysisOutput");
 const imagesOutput = document.getElementById("imagesOutput");
 const uploadStatus = document.getElementById("uploadStatus");
 
+function markdownBoldToHtml(text) {
+    if (!text) return "";
+
+    return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+}
+
 submitButton.addEventListener("click", async () => {
     const file = audioInput.files?.[0];
     if (!file) return;
@@ -29,16 +35,21 @@ submitButton.addEventListener("click", async () => {
     uploadStatus.innerText = data.message ?? "Upload failed";
     const analysisRes = await fetch(`/api/analyze/${data.name}`);
     const dataAnalysis = await analysisRes.json();
+    
+    console.log("dataAnalysis", dataAnalysis);
+    
+    const formattedAnalysis = markdownBoldToHtml(dataAnalysis.analysis);
 
-    analysisOutput.innerText = data.analysis ?? "No analysis returned";
-
+    analysisOutput.innerHTML = formattedAnalysis || "No analysis returned";
+    console.log("sliced prompt",dataAnalysis.analysis.slice(dataAnalysis.analysis.indexOf("6.") + 1));
     const coverRes = await fetch("/api/generate-cover", {
         method: "POST",
-        body: JSON.stringify({ prompt: dataAnalysis }),
+        body: JSON.stringify({ prompt: dataAnalysis.analysis.slice(dataAnalysis.analysis.indexOf("6.") + 1) }),
         headers: {
             "Content-Type": "application/json",
         },
     });
+    console.log("coverRes", coverRes);
     const dataCover = await coverRes.json();
 
     if (dataCover.images?.length) {
