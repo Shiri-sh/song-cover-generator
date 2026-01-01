@@ -106,13 +106,13 @@ h2::before {
     transition: opacity 0.3s ease;
 }
 
-.upload-box:hover,
+/* .upload-box:hover,
 .analysis-box:hover,
 .images-box:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 48px var(--glow);
     border-color: var(--primary);
-}
+} */
 
 .upload-box:hover::before,
 .analysis-box:hover::before,
