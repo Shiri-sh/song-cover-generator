@@ -78,7 +78,14 @@ const generateCover = async (req, res) => {
   if (!prompt) {
       return res.status(400).json({ error: "Prompt is required" });
   }
-   const result = await model.generateContent(prompt);
+   const result = await model.generateContent(
+      `Return ONLY a single, clean image description.
+      No options, no titles, no markdown, no explanations.
+      Just one paragraph suitable as an AI image prompt.
+
+      Text:
+      ${prompt}`
+   );
    const response =  result.response;
    const aiImagePrompt= response.text().trim();
   
@@ -87,47 +94,6 @@ const generateCover = async (req, res) => {
   console.log("Generated Image URL:", generatedImageUrl);
   res.json({ success: true, images: [generatedImageUrl] });
 }
-// const generateCover = async (req, res) => {
-//   // Generate a cover for the audio file
-//   try {
-//     const { prompt } = req.body;
-//     if (!prompt) {
-//       return res.status(400).json({ error: "Prompt is required" });
-//     }
 
-//     const images = [];
-
-//     for (let i = 0; i < 3; i++) {
-//       const response = await axios.post(
-//         "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0",
-//         {
-//           inputs: prompt  
-//         },
-//         {
-//           headers: {
-//             Authorization: `Bearer ${process.env.HF_TOKEN}`,
-//             "Content-Type": "application/json"
-//           },
-//           responseType: "json" 
-//         }
-//       );
-
-//       const fileName = `img_${Date.now()}_${i}.png`;
-//       const filePath = path.join("public", "generated", fileName);
-
-//       fs.writeFileSync(filePath, response.data);
-
-//       images.push({
-//         url: `/generated/${fileName}`
-//       });
-//     }
-
-//     res.json({ success: true, images });
-//   } catch (err) {
-//     console.log(err);
-//   }
-
-//   res.send('Cover generated successfully.');
-// };
 
 export { uploadAudio, analyzeAudio, generateCover };
