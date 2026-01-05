@@ -258,9 +258,9 @@ h2::before {
     transition: all 0.3s ease;
 }
 
-.image-container:hover .generated-image {
+/* .image-container:hover .generated-image {
     transform: scale(1.05);
-}
+} */
 
 /* Loading animation */
 .loading {

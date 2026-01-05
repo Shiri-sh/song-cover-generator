@@ -58,22 +58,24 @@ submitButton.addEventListener("click", async () => {
             const container = document.createElement("div");
             container.className = "image-container";
 
+             console.log("url.slice(1, -1):", url.slice(1, -1));
+             console.log("url", url);
+
             const img = document.createElement("img");
             img.src = url;
+            console.log("img.src:", img.src);
+
             img.className = "generated-image";
             img.alt = `Generated Image ${index + 1}`;
 
             const downloadButton = document.createElement("button");
             downloadButton.innerText = "Download";
-            downloadButton.addEventListener("click", () => {
-                const a = document.createElement("a");
-                a.href = JSON.parse(url);
-                //JSON.parse(url);
-                console.log("url.slice(1, -1):", url.slice(1, -1));
-                console.log("a.JSON.parse(url):", JSON.parse(url));
-                a.download = `image_${index + 1}.png`;
-                a.click();
-            });
+            // downloadButton.addEventListener("click", () => {
+            //     const a = document.createElement("a");
+            //     a.href = url;
+            //     a.download = `image_${index + 1}.png`;
+            //     a.click();
+            // });
 
             container.appendChild(img);
             container.appendChild(downloadButton);
