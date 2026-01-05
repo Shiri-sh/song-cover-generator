@@ -91,7 +91,7 @@ const generateCover = async (req, res) => {
   
   const generatedImageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(aiImagePrompt)}?nologo=true&private=true&enhance=true`;
 
-  console.log("Generated Image URL:", generatedImageUrl);
+  console.log("Generated Image URL:", generatedImageUrl+"'");
   res.json({ success: true, images: [generatedImageUrl] });
 }
 
