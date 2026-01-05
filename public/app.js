@@ -49,8 +49,9 @@ submitButton.addEventListener("click", async () => {
             "Content-Type": "application/json",
         },
     });
-    console.log("coverRes", coverRes);
     const dataCover = await coverRes.json();
+
+    console.log("dataCover", dataCover);
 
     if (dataCover.images?.length) {
         dataCover.images.forEach((url, index) => {
@@ -66,7 +67,10 @@ submitButton.addEventListener("click", async () => {
             downloadButton.innerText = "Download";
             downloadButton.addEventListener("click", () => {
                 const a = document.createElement("a");
-                a.href = url;
+                a.href = JSON.parse(url);
+                //JSON.parse(url);
+                console.log("url.slice(1, -1):", url.slice(1, -1));
+                console.log("a.JSON.parse(url):", JSON.parse(url));
                 a.download = `image_${index + 1}.png`;
                 a.click();
             });
