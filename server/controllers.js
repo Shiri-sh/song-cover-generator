@@ -46,7 +46,9 @@ const analyzeAudio = async (req, res) => {
         3. Genre (technology/business/entertainment/news/music)
         4. Target audience
         5. 3-5 keywords
-        6. description for an image that would represent this audio well.`;
+        6. description for an image that would represent this audio well.
+        Return section 6 as a single, clean image prompt suitable for AI image generation.
+        No options, no markdown.`;
 
     const base64AudioFile = fs.readFileSync(filePath, { encoding: "base64" });
     const contents = [
@@ -70,30 +72,33 @@ const analyzeAudio = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-const generateCover = async (req, res) => {
-  const genAI = new GoogleGenerativeAI(process.env.GENAI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-  const { prompt } = req.body;
-  if (!prompt) {
-      return res.status(400).json({ error: "Prompt is required" });
+const proxyImage = async (req, res) => {
+  try {
+    const { prompt } = req.query;
+    if (!prompt) {
+      return res.status(400).send("Prompt is required");
+    }
+
+    const imageUrl =
+      `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?nologo=true&private=true&enhance=true`;
+
+    console.log("Proxying Image URL:", imageUrl);
+    const response = await axios.get(imageUrl, {
+      responseType: "arraybuffer",
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "image/*",
+      },
+    });
+
+    res.setHeader("Content-Type", "image/png");
+    res.send(response.data);
+
+  } catch (err) {
+    console.error("Image proxy error:", err.message);
+    res.status(500).send("Failed to load image");
   }
-   const result = await model.generateContent(
-      `Return ONLY a single, clean image description.
-      No options, no titles, no markdown, no explanations.
-      Just one paragraph suitable as an AI image prompt.
+};
 
-      Text:
-      ${prompt}`
-   );
-   const response =  result.response;
-   const aiImagePrompt= response.text().trim();
-  
-  const generatedImageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(aiImagePrompt)}?nologo=true&private=true&enhance=true`;
-
-  console.log("Generated Image URL:", generatedImageUrl+"'");
-  res.json({ success: true, images: [generatedImageUrl] });
-}
-
-
-export { uploadAudio, analyzeAudio, generateCover };
+export { uploadAudio, analyzeAudio, proxyImage };

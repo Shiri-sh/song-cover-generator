@@ -32,7 +32,8 @@ function createImageCard(url, index) {
     container.className = "image-container";
 
     const img = document.createElement("img");
-    img.src = url;
+    img.src = `/api/image-proxy?prompt=${encodeURIComponent(url)}`;
+    console.log("img.src:", img.src);
     img.className = "generated-image";
     img.alt = `Generated Image ${index + 1}`;
 
@@ -54,7 +55,6 @@ submitButton.addEventListener("click", async () => {
     const file = audioInput.files?.[0];
     if (!file) return;
 
-    // Initial UI state
     setAnalysisText("Processing...");
     setUploadStatus("Uploading...");
     setImagesMessage("Generating images...");
@@ -81,33 +81,15 @@ submitButton.addEventListener("click", async () => {
             setAnalysisText(formattedAnalysis);
 
             const promptText = dataAnalysis.analysis.slice(dataAnalysis.analysis.indexOf("6.") + 1);
-
-            const coverRes = await fetch("/api/generate-cover", {
-                method: "POST",
-                body: JSON.stringify({ prompt: promptText }),
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-
-            const dataCover = await coverRes.json();
-
-            if (dataCover.images?.length) {
-                // show each image neatly
-                dataCover.images.forEach((url, index) => {
-                    const card = createImageCard(url, index);
-                    imagesOutput.appendChild(card);
-                });
-            } else {
-                setImagesMessage("No images generated. Try again later.");
-            }
+            const card = createImageCard(promptText, 1);
+            imagesOutput.appendChild(card);
         } else {
             setAnalysisText("We had an issue with the analysis.");
             setImagesMessage("No images generated because no valid analysis result.");
         }
     } catch (err) {
         console.error("Error during processing:", err);
-        setUploadStatus("Upload failed");
+        setUploadStatus("");
         setAnalysisText("An error occurred. Please try again.");
         setImagesMessage("No images generated due to an error.");
     }

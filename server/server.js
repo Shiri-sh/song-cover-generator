@@ -7,7 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 
-import { uploadAudio ,analyzeAudio,generateCover} from './controllers.js';
+import { uploadAudio ,analyzeAudio,proxyImage} from './controllers.js';
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
@@ -36,7 +36,7 @@ const upload = multer({ storage: storage });
 
 router.post('/upload', upload.single('audio'), uploadAudio);
 router.get('/analyze/:filename', analyzeAudio);
-router.post('/generate-cover', generateCover);
+router.get("/image-proxy", proxyImage);
 
 app.listen(PORT, () => {
   console.log("PORT ENV", process.env.PORT);

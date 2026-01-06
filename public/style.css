@@ -244,11 +244,11 @@ h2::before {
     }
 }
 
-.image-container:hover {
+/* .image-container:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 12px 32px var(--glow);
     border-color: var(--primary);
-}
+} */
 
 .generated-image {
     width: 100%;
